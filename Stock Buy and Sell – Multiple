@@ -1,0 +1,25 @@
+Stock Buy and Sell – Multiple Transaction Allowed
+  def maxProfit(self, prices) -> int:
+        profit = 0
+        i=0
+        while  i<(len(prices)-1):
+            if prices[i]>prices[i+1]:
+                i=i+1
+                continue
+            Buy=prices[i]
+            maxSoFar=prices[i]
+            flag = True # no further small value present in respect of maxSoFar
+            for j in range(i+1,len(prices)):
+                if(prices[j]<maxSoFar):
+                    i=j
+                    flag=False # As here
+                    break
+                maxSoFar=prices[j]
+            if((maxSoFar-Buy)>0):
+                # print(maxSoFar , " - ",Buy,'=', maxSoFar - Buy)
+                profit = profit+(maxSoFar-Buy)
+            if(flag):
+                break
+            # print("flag vlaue", flag)
+        return profit
+        
