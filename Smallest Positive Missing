@@ -1,0 +1,27 @@
+#Solution : I sorted the array and tracked consecutive positive numbers using a pointer (last). 
+#The first break in sequence gives me the smallest missing positive integer."
+
+def missingNumber(self, arr):
+        arr.sort()
+        last = 0
+        missed=0
+        count = False # first comparison only , means to decide first last value 
+        for i in arr:
+            if i>0: # Only pick the postive number 
+                if last+1 == i or last == i: 
+                    last = i 
+                    count = True
+                else:
+                    if count:
+                        missed=last+1
+                    else:
+                        missed = last
+                    break
+        if missed>0:
+            return missed
+        else:
+            if count:
+                return i+1
+            
+            return 1
+                
