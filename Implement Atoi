@@ -1,0 +1,47 @@
+Implement Atoi
+Given a string s, the objective is to convert it into integer format without utilizing any built-in functions. Refer the below steps to know about atoi() function.
+
+Cases for atoi() conversion:
+
+Skip any leading whitespaces.
+Check for a sign (‘+’ or ‘-‘), default to positive if no sign is present.
+Read the integer by ignoring leading zeros until a non-digit character is encountered or end of the string is reached. If no digits are present, return 0.
+If the integer is greater than 231 – 1, then return 231 – 1 and if the integer is smaller than -231, then return -231.
+
+def myAtoi(self, s):
+        #check for any leading white spaces.
+        newStr =''
+        sign =''
+        for i in range(len(s)):
+            if s[i]!=' ':
+                newStr=newStr+s[i]
+        # print("new value",newStr)
+       
+        number = ''
+        #finding number
+        for i in newStr:
+            # print("i value",i)
+            if number and (i=='-' or i =='+'):
+                continue
+            elif ( i=='-' or i =='+' or i == '1' or i == '2' or i == '3' or i == '4' or i == '5' or i == '6' or i == '0' or i == '7' or i == '8' or i == '9'):
+                # print("value",i)
+                number = number+i
+            else:
+                break
+        # print("number ",number)
+        if not number or number=='-' or number=='+':
+            return 0
+        #remove zeros from number 
+        zeros=False
+        s=''
+        for i in number:
+            if (not s) and i != '0':
+                s = s+i 
+            else:
+                s=s+i
+        if int(s)>((2**31)-1):
+            return (2**31)-1
+        elif int(s)<(-2**31):
+            return -2**31
+        else:
+            return int(s)
