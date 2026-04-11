@@ -7,7 +7,10 @@ Skip any leading whitespaces.
 Check for a sign (‘+’ or ‘-‘), default to positive if no sign is present.
 Read the integer by ignoring leading zeros until a non-digit character is encountered or end of the string is reached. If no digits are present, return 0.
 If the integer is greater than 231 – 1, then return 231 – 1 and if the integer is smaller than -231, then return -231.
-
+# we can use , convert characters to digits using ASCII via ord(char) - ord('0').”
+#print(ord('3') - ord('0'))  # 3
+#print(ord('9') - ord('0'))  # 9
+#print(ord('1') - ord('0'))  # 1
 def myAtoi(self, s):
         #check for any leading white spaces.
         newStr =''
