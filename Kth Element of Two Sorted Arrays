@@ -1,0 +1,14 @@
+# Kth Element of Two Sorted Arrays — Two Pointer Approach
+
+* "Pattern:" Use two pointers `i` and `j` for the two sorted arrays.
+* "Goal:" Find the `tar`-th element without creating a third/merged array.
+* Compare `a[i]` and `b[j]`.
+* Take the "smaller element", store it in `val`, and move that array's pointer.
+* Increment `k` after every selected element.
+* Continue until `k == tar`.
+* If one array is exhausted, continue taking elements from the remaining array.
+* The last selected value (`val`) is the "kth element".
+* "Important:" Since arrays are sorted, the smallest remaining element is always the next element in the merged order.
+* "Time:" `O(tar)` — at most `tar` elements are processed.
+* "Space:" `O(1)` — no extra merged array.
+* "Recall phrase:" “Two pointers → compare → take smaller → move pointer → count until K.”
