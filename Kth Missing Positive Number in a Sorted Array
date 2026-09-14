@@ -1,0 +1,151 @@
+# Kth Missing Positive Number — Linear Gap Counting
+
+### Approach
+
+I solved this problem using a "linear traversal and gap-counting approach".
+
+The main idea is to traverse the sorted array and check the gap between two consecutive values. If there is a gap, the numbers inside that gap are missing.
+
+For two values:
+
+"text
+prev = 4
+next = 7
+"
+
+The missing numbers are:
+
+"text
+5, 6
+"
+
+So the number of missing values is:
+
+"text
+next - prev - 1
+= 7 - 4 - 1
+= 2
+"
+
+I subtract the number of missing values from `k`.
+
+* If `k` is still greater than the current gap, I continue to the next gap.
+* If `k` falls inside the current gap, the answer is `prev + k`.
+* If all gaps are processed and `k` is still remaining, the answer is after the last element: `arr[-1] + k`.
+
+### Example
+
+"text
+arr = [2, 3, 4, 7, 11]
+k = 5
+
+Missing numbers:
+1, 5, 6, 8, 9, 10...
+"
+
+Traverse the gaps:
+
+"text
+2 → 3     : 0 missing
+3 → 4     : 0 missing
+4 → 7     : 2 missing → k = 5 - 2 = 3
+7 → 11    : 3 missing → k = 3 - 3 = 0
+"
+
+The 5th missing number is:
+
+"text
+7 + 3 = 10
+"
+
+### Additional Optimization
+
+I also check whether the array contains the complete sequence from `1` to `arr[-1]`.
+
+Using:
+
+"text
+1 + 2 + ... + n = n(n + 1) / 2
+"
+
+If:
+
+"python
+sum(arr) == arr[-1] * (arr[-1] + 1) // 2
+"
+
+then there are no missing numbers before `arr[-1]`, so the answer is simply:
+
+"text
+arr[-1] + k
+"
+
+### Method Classification
+
+* "Array"
+* "Linear Traversal"
+* "Gap Counting"
+* Uses a "mathematical sum formula as a shortcut"
+* No DP
+* No Binary Search
+
+### Complexity
+
+Assuming the array is already sorted:
+
+"text
+Time Complexity:  O(n)
+Space Complexity: O(1)
+"
+
+### Important Learning
+
+My key observation was:
+
+> Instead of checking every positive integer, I can count how many numbers are missing between consecutive array elements and reduce `k` by that amount.
+
+This is a valid linear solution. The problem can be optimized further using "Binary Search", because the number of missing elements before each array element is monotonic.
+
+
+solution:
+class Solution:
+    def kthMissing(self, arr, k):
+        totalsum=sum(arr)
+        cal_sum=((arr[-1]*(arr[-1]+1))//2)
+        # print("total sumj",totalsum,"and cal_sum",cal_sum)
+        if(cal_sum==totalsum):
+            return arr[-1]+k
+        prev=0
+        next=arr[0]
+        i=1
+        while i<len(arr):
+            if prev+1==next or prev==next:
+                
+                prev=next
+                next=arr[i]
+            else:
+                newk=k-(next-prev)+1
+                # print("curr value",prev,"and next",next)
+                if newk<=0:
+                    # print("kd",prev)
+                    return prev+k
+                else:
+                    # i+=1
+                    k=newk
+                    prev=next
+                    next=arr[i]
+            i+=1
+        
+        # print("curr value",prev,"and next",next)
+
+        if(i==len(arr)):
+            newk=k-(next-prev)+1
+            # print("new k value",newk,"and ",k)
+            
+            if newk<=0:
+                # print("kd",prev)
+                return prev+k
+            k=newk
+        # print("bug",i)
+        return arr[-1]+k
+                
