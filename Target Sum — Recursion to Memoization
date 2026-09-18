@@ -1,0 +1,372 @@
+## Problem
+
+Given an array `arr`, assign either `+` or `-` to every element so that the final sum equals `target`.
+
+Return the ##number of ways## to achieve the target.
+
+Example:
+
+"python
+arr = [1, 1, 2]
+target = 0
+"
+
+Possible valid expressions:
+
+"text
++1 -1 +2 = 2   ❌
++1 -1 -2 = -2 ❌
++1 +1 -2 = 0  ✅
+-1 -1 +2 = 0  ✅
+"
+
+So the answer is:
+
+"text
+2
+"
+
+---
+
+# 1. Recursion Idea
+
+For every element, we have two choices:
+
+"text
++ arr[i]
+- arr[i]
+"
+
+Therefore:
+
+"python
+plus = f(arr, sums + arr[i], i + 1, target)
+minus = f(arr, sums - arr[i], i + 1, target)
+"
+
+The answer for the current state is:
+
+"python
+plus + minus
+"
+
+because we want to count ##all possible ways##.
+
+---
+
+# 2. Base Case
+
+When we have processed every element:
+
+"python
+if i == len(arr):
+    return 1 if sums == target else 0
+"
+
+Why?
+
+If:
+
+"text
+i == len(arr)
+"
+
+then there are no elements left.
+
+Now we only need to check:
+
+"text
+current sum == target ?
+"
+
+If yes:
+
+"text
+return 1
+"
+
+This represents one valid way.
+
+Otherwise:
+
+"text
+return 0
+"
+
+---
+
+# 3. Pure Recursion
+
+"python
+class Solution:
+    def totalWays(self, arr: list[int], target: int) -> int:
+        return self.f(arr, 0, 0, target)
+
+    def f(self, arr, sums, i, target):
+
+        if i == len(arr):
+            return 1 if sums == target else 0
+
+        plus = self.f(
+            arr,
+            sums + arr[i],
+            i + 1,
+            target
+        )
+
+        minus = self.f(
+            arr,
+            sums - arr[i],
+            i + 1,
+            target
+        )
+
+        return plus + minus
+"
+
+---
+
+# 4. Why DP Is Needed
+
+The recursion can reach the ##same state through different paths##.
+
+A state is represented by:
+
+"text
+(i, sums)
+"
+
+For example:
+
+"text
+arr = [1, 1, 2]
+"
+
+The recursion can reach:
+
+"text
+(i=2, sums=0)
+"
+
+from two different paths:
+
+"text
++1 +1 -2 → sum 0
+-1 -1 +2 → sum 0
+"
+
+Once we reach:
+
+"text
+(i=2, sums=0)
+"
+
+the remaining problem is exactly the same.
+
+Therefore, calculating it again is unnecessary.
+
+This is an ##overlapping subproblem##.
+
+---
+
+# 5. Memoization
+
+We use a dictionary:
+
+"python
+dp = {}
+"
+
+The key is:
+
+"python
+(i, sums)
+"
+
+and the value is:
+
+"text
+number of ways from this state
+"
+
+So:
+
+"python
+dp[(i, sums)] = number_of_ways
+"
+
+Before calculating a state, check whether it already exists:
+
+"python
+if (i, sums) in dp:
+    return dp[(i, sums)]
+"
+
+---
+
+# 6. Final Memoized Solution
+
+"python
+class Solution:
+    def totalWays(self, arr: list[int], target: int) -> int:
+        dp = {}
+        return self.f(arr, 0, 0, target, dp)
+
+    def f(self, arr, sums, i, target, dp):
+
+        # Base case
+        if i == len(arr):
+            return 1 if sums == target else 0
+
+        # Already calculated
+        if (i, sums) in dp:
+            return dp[(i, sums)]
+
+        # Two choices: + and -
+        plus = self.f(
+            arr,
+            sums + arr[i],
+            i + 1,
+            target,
+            dp
+        )
+
+        minus = self.f(
+            arr,
+            sums - arr[i],
+            i + 1,
+            target,
+            dp
+        )
+
+        # Store result
+        ways = plus + minus
+        dp[(i, sums)] = ways
+
+        return ways
+"
+
+---
+
+# 7. Important DP Pattern
+
+This problem follows a very useful recursion + DP pattern:
+
+"text
+                    f(i, sums)
+                   /          \
+                + choice     - choice
+                  /              \
+          f(i+1, ...)        f(i+1, ...)
+                   \          /
+                    same state
+                        ↓
+                  (i, sums)
+                        ↓
+                  store in dp
+"
+
+General pattern:
+
+"python
+def f(state):
+
+    if base_case:
+        return answer
+
+    if state in dp:
+        return dp[state]
+
+    answer = solve_using_recursion()
+
+    dp[state] = answer
+
+    return answer
+"
+
+---
+
+# 8. What Is the DP State?
+
+For this solution:
+
+"text
+DP state = (i, sums)
+"
+
+Where:
+
+# `i` = current index
+# `sums` = current accumulated sum
+
+We don't need to put `target` in the key because `target` remains fixed during one call to `totalWays()`.
+
+---
+
+# 9. Complexity
+
+Without memoization:
+
+"text
+O(2^n)
+"
+
+because every element has two choices.
+
+With memoization, we calculate each `(i, sums)` state only once.
+
+The number of possible sums depends on the values in the array. If the total absolute sum is `S`, the possible sums are roughly from:
+
+"text
+-S to +S
+"
+
+So the DP complexity can be described as approximately:
+
+"text
+O(n × S)
+"
+
+with:
+
+"text
+S = sum(abs(x) for x in arr)
+"
+
+Space complexity:
+
+"text
+O(n × S)
+"
+
+for the memoization table, plus recursion stack space.
+
+---
+
+# Key Learning
+
+The most important thing to remember from this problem is:
+
+> ##Recursion gives us the choices. DP remembers the repeated states.##
+
+For this problem:
+
+"text
+Choices:
+    +arr[i]
+    -arr[i]
+
+State:
+    (i, sums)
+
+Base case:
+    i == len(arr)
+
+Answer:
+    plus + minus
+
+Memoization:
+    dp[(i, sums)]
+"
+
+This is a ##Top-Down DP / Memoization## solution built directly on top of the recursive solution.
