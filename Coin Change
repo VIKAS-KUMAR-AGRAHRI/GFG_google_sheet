@@ -1,0 +1,486 @@
+Absolutely. Here's a GitHub-style note focused on "your exact take/leave recursion", including why we don't simply pick the largest coin.
+
+# Coin Change — Recursive Take / Leave Approach
+
+## Problem
+
+Given an array of coin denominations and a target `amount`, find the "minimum number of coins" required to make the target amount.
+
+Each coin can be used "unlimited times".
+
+Example:
+
+"python
+coins = [3, 5, 7]
+amount = 13
+"
+
+Possible solution:
+
+"text
+7 + 3 + 3 = 13
+"
+
+So the answer is:
+
+"text
+3 coins
+"
+
+---
+
+## My Recursive Idea
+
+At every coin, there are two choices:
+
+1. "Take" the current coin.
+2. "Leave" the current coin and move to the previous coin.
+
+Conceptually:
+
+"text
+                 coin[n]
+                /       \
+             TAKE       LEAVE
+              |           |
+       use coin[n]       n - 1
+              |
+        target - coin[n]
+"
+
+---
+
+## Recursive Code
+
+"python
+def coinChange(coins, amount):
+
+    val = findTargetValue(coins, len(coins) - 1, amount)
+
+    if val == float('inf'):
+        return -1
+
+    return val
+
+
+def findTargetValue(arr, n, target):
+
+    # No coins left
+    if n < 0:
+        return float('inf')
+
+    # Target successfully created
+    if target == 0:
+        return 0
+
+    # Initially assume TAKE is impossible
+    take = float('inf')
+
+    # LEAVE current coin
+    leave = findTargetValue(arr, n - 1, target)
+
+    # TAKE current coin
+    if target >= arr[n]:
+        take = 1 + findTargetValue(
+            arr,
+            n,
+            target - arr[n]
+        )
+
+    # Choose the option requiring fewer coins
+    return min(take, leave)
+"
+
+---
+
+# Important Understanding
+
+## Why does `n` stay the same in TAKE?
+
+This is very important.
+
+"python
+take = 1 + findTargetValue(arr, n, target - arr[n])
+"
+
+Notice:
+
+"python
+n
+"
+
+does "not" become:
+
+"python
+n - 1
+"
+
+Why?
+
+Because the same coin can be used again.
+
+Example:
+
+"text
+coins = [3, 5, 7]
+"
+
+If we take `7`:
+
+"text
+13 → 6
+"
+
+We are still allowed to take `7`:
+
+"text
+6 → -1
+"
+
+So TAKE keeps:
+
+"python
+n
+"
+
+---
+
+## Why does `n` become `n - 1` in LEAVE?
+
+"python
+leave = findTargetValue(arr, n - 1, target)
+"
+
+LEAVE means:
+
+> "I don't want to use this coin anymore."
+
+So we move to the previous coin.
+
+Example:
+
+"text
+7 → leave → 5 → leave → 3
+"
+
+Therefore:
+
+"python
+n - 1
+"
+
+---
+
+# Why `take` has `1 +`
+
+When we take a coin, we have used "one coin".
+
+Therefore:
+
+"python
+take = 1 + findTargetValue(...)
+"
+
+The recursive call calculates how many more coins are required.
+
+For example:
+
+"text
+13
+ ↓ take 7
+6
+ ↓ take 3
+3
+ ↓ take 3
+0
+"
+
+The calculation becomes:
+
+"text
+1 + 1 + 1 + 0
+"
+
+Therefore:
+
+"text
+3 coins
+"
+
+---
+
+# Base Cases
+
+## 1. `target == 0`
+
+"python
+if target == 0:
+    return 0
+"
+
+This means:
+
+> We successfully created the target, so no more coins are required.
+
+Example:
+
+"text
+13 → 7 → 3 → 3 → 0
+"
+
+When we reach `0`:
+
+"text
+0 more coins required
+"
+
+---
+
+## 2. `n < 0`
+
+"python
+if n < 0:
+    return float('inf')
+"
+
+This means:
+
+> We have no coins left, but the target is still not zero.
+
+So this path is impossible.
+
+We return infinity because we don't want this path to become the minimum.
+
+Example:
+
+"text
+target = 2
+coins = [3]
+"
+
+We cannot make `2`.
+
+So:
+
+"text
+∞
+"
+
+represents:
+
+"text
+Impossible solution
+"
+
+---
+
+# Why `min(take, leave)`?
+
+At every point we have two possibilities:
+
+"python
+return min(take, leave)
+"
+
+For example:
+
+"text
+take  = 4 coins
+leave = 3 coins
+"
+
+Then:
+
+"python
+min(4, 3)
+"
+
+gives:
+
+"text
+3
+"
+
+Because the problem asks for the "minimum number of coins".
+
+---
+
+# Why Not Always Pick the Largest Coin?
+
+Initially, I thought:
+
+> Sort the coins and always pick the largest coin because it reduces the amount faster.
+
+This is a "greedy approach".
+
+But it doesn't always produce the minimum number of coins.
+
+Example:
+
+"python
+coins = [1, 3, 4]
+amount = 6
+"
+
+Largest coin first:
+
+"text
+6
+↓ take 4
+2
+↓ take 1
+1
+↓ take 1
+0
+"
+
+Result:
+
+"text
+4 + 1 + 1
+"
+
+= "3 coins"
+
+But:
+
+"text
+6
+↓ take 3
+3
+↓ take 3
+0
+"
+
+gives:
+
+"text
+3 + 3
+"
+
+= "2 coins"
+
+Therefore:
+
+"text
+Largest coin first ≠ Always minimum coins
+"
+
+This is why the recursive solution checks both:
+
+"text
+TAKE
+LEAVE
+"
+
+and finally uses:
+
+"python
+min(take, leave)
+"
+
+---
+
+# Recursion Pattern to Remember
+
+This problem is a good example of the general "Take / Leave pattern".
+
+"python
+take = ...
+leave = ...
+
+return min(take, leave)
+"
+
+For this particular problem:
+
+"python
+take = 1 + f(n, target - arr[n])
+
+leave = f(n - 1, target)
+
+return min(take, leave)
+"
+
+Remember:
+
+"text
+TAKE  → n stays same
+LEAVE → n decreases
+"
+
+because coins can be used unlimited times.
+
+---
+
+# Recursion Tree Example
+
+For:
+
+"python
+coins = [3, 5, 7]
+amount = 13
+"
+
+Starting from `7`:
+
+"text
+                         (n=2, target=13)
+                         /              \
+                      TAKE             LEAVE
+                       /                  \
+                (n=2, target=6)       (n=1, target=13)
+                   /       \              /        \
+                TAKE      LEAVE        TAKE       LEAVE
+                  ...        ...         ...        ...
+"
+
+Every node asks:
+
+"text
+Should I TAKE this coin?
+OR
+Should I LEAVE this coin?
+"
+
+Eventually, each path reaches either:
+
+"text
+target == 0
+"
+
+or:
+
+"text
+n < 0
+"
+
+Then the return values travel "back upward" through the recursion.
+
+---
+
+# One-Line Summary
+
+> "At every coin, try taking it (keep the same index because it can be reused) and leaving it (move to the previous index), then return the minimum number of coins among the two choices."
+
+---
+
+## Future Optimization
+
+The current solution is "pure recursion", so many `(n, target)` states are calculated repeatedly.
+
+For example, the same state:
+
+"text
+(n=1, target=6)
+"
+
+can be reached through multiple paths.
+
+The next optimization is "memoization / DP", where we store:
+
+"text
+(n, target) → minimum coins
+"
+
+so that the same state doesn't need to be calculated again.
