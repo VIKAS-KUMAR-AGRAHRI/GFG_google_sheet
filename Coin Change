@@ -484,3 +484,30 @@ The next optimization is "memoization / DP", where we store:
 "
 
 so that the same state doesn't need to be calculated again.
+
+
+#DP approach to solve this problem.
+
+class Solution:
+    def minCoins(self, coins: list[int], sum: int) -> int:
+        if len(coins)==1:
+            return sum//coins[0] if sum%coins[0]==0 else -1
+        val=float('inf')
+        dp={}
+        val=self.jumps(coins,len(coins)-1,sum,dp)
+        if val!=float('inf'):
+            return val
+        return -1
+    def jumps(self,coins,n,sum,dp):
+        if n<0:
+            return float('inf')
+        if sum==0:
+            return 0
+        if (sum,n) in dp:
+            return dp[(sum,n)]
+        leave_coin=self.jumps(coins,n-1,sum,dp)
+        take_coin=float('inf')
+        if sum>=coins[n]:
+            take_coin=1+self.jumps(coins,n,sum-arr[n],dp)
+        dp[(sum,n)]=min(take_coin,leave_coin)
+        return dp[(sum,n)]
