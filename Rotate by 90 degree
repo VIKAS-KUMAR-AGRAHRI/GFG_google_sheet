@@ -1,0 +1,535 @@
+Absolutely. Since this is for your future GitHub study notes, I'd structure it as a **learning note** explaining both the mapping and why `newarr[n-j][i]` works.
+
+# Rotate Matrix 90° Clockwise — Coordinate Mapping
+
+## Problem
+
+Given an `n x n` matrix, rotate the matrix **90° clockwise**.
+
+Example:
+
+text
+Input:
+
+1 2 3
+4 5 6
+7 8 9
+
+Output:
+
+text
+7 4 1
+8 5 2
+9 6 3
+
+---
+
+## My Approach
+
+Instead of modifying the matrix directly, I first create a new matrix and place every element at its rotated position.
+
+python
+class Solution:
+    def rotateMatrix(self, mat):
+        n = len(mat)
+
+        newarr = [[-1] * n for _ in range(n)]
+
+        n = n - 1
+
+        for i in range(len(mat)):
+            for j in range(len(mat[0])):
+                newarr[n-j][i] = mat[i][j]
+
+        for i in range(len(mat)):
+            for j in range(len(mat[0])):
+                mat[i][j] = newarr[i][j]
+
+---
+
+# The Main Idea
+
+The important line is:
+
+python
+newarr[n-j][i] = mat[i][j]
+
+
+This means:
+
+text
+old position       →       new position
+
+mat[i][j]          →       newarr[n-j][i]
+
+For a matrix of size `n x n`:
+
+text
+new row = n - 1 - j
+new col = i
+
+Therefore:
+text
+newarr[n - 1 - j][i] = mat[i][j]
+
+---
+# Understanding With a 3 × 3 Matrix
+
+Consider:
+
+text
+mat =
+
+0 1 2
+3 4 5
+6 7 8
+
+
+Indexes are:
+
+text
+       j
+       0 1 2
+     ----------
+i 0 | 0 1 2
+  1 | 3 4 5
+  2 | 6 7 8
+
+
+Take:
+text
+mat[0][0] = 0
+Here:
+text
+i = 0
+j = 0
+n = 3
+
+New position:
+
+text
+new row = n - 1 - j
+        = 3 - 1 - 0
+        = 2
+
+new col = i
+        = 0
+
+Therefore:
+
+python
+newarr[2][0] = mat[0][0]
+
+So `0` moves here:
+
+text
+- - -
+- - -
+0 - -
+
+---
+
+## Another Example
+
+Take:
+
+text
+mat[0][2] = 2
+
+
+Here:
+
+text
+i = 0
+j = 2
+
+
+New position:
+
+text
+new row = 3 - 1 - 2
+        = 0
+
+new col = 0
+
+
+Therefore:
+
+python
+newarr[0][0] = mat[0][2]
+
+
+So:
+
+text
+2 - -
+- - -
+0 - -
+
+
+This is exactly what a 90° clockwise rotation requires.
+
+---
+
+# Complete Mapping
+
+For:
+
+text
+0 1 2
+3 4 5
+6 7 8
+
+
+the mapping is:
+
+text
+old       new
+
+0 → (2,0)
+1 → (1,0)
+2 → (0,0)
+
+3 → (2,1)
+4 → (1,1)
+5 → (0,1)
+
+6 → (2,2)
+7 → (1,2)
+8 → (0,2)
+
+
+Therefore:
+
+text
+new matrix:
+
+6 3 0
+7 4 1
+8 5 2
+
+
+---
+
+# Why `n = n - 1`?
+
+Initially:
+
+python
+n = len(mat)
+
+
+For a `3 x 3` matrix:
+
+text
+n = 3
+
+
+But the last valid index is:
+
+text
+2
+
+
+because indexes are:
+
+text
+0, 1, 2
+
+
+So:
+
+python
+n = n - 1
+
+
+makes:
+
+text
+n = 2
+
+
+Now the formula:
+
+python
+newarr[n-j][i]
+
+
+is really:
+
+python
+newarr[2-j][i]
+
+
+which is equivalent to:
+
+python
+newarr[n-1-j][i]
+
+
+when `n` represents the matrix size.
+
+---
+
+# Important Python Lesson
+
+Initially I used:
+
+python
+newarr = [[-1] * n] * n
+
+
+This is WRONG for a 2D matrix.
+
+Why?
+
+Because every row points to the **same list**.
+
+Instead use:
+
+python
+newarr = [[-1] * n for _ in range(n)]
+
+
+This creates a separate list for every row.
+
+For example:
+
+python
+newarr = [[-1] * n for _ in range(n)]
+
+
+creates:
+
+text
+row 0 → separate list
+row 1 → separate list
+row 2 → separate list
+
+
+This is an important Python concept to remember.
+
+---
+
+# Why I Used a Second Loop
+
+After calculating the rotated matrix:
+
+python
+newarr[n-j][i] = mat[i][j]
+
+
+`newarr` contains the answer.
+
+Then I copy it back:
+
+python
+for i in range(len(mat)):
+    for j in range(len(mat[0])):
+        mat[i][j] = newarr[i][j]
+
+
+This modifies the original `mat`.
+
+So the process is:
+
+text
+Original matrix
+      ↓
+Calculate rotated positions
+      ↓
+Store in newarr
+      ↓
+Copy newarr → mat
+      ↓
+Rotated matrix
+
+
+---
+
+# Complexity
+
+For an `n × n` matrix:
+
+# Time
+
+First nested loop:
+
+text
+n × n = O(n²)
+
+
+Second nested loop:
+
+text
+n × n = O(n²)
+
+
+Overall:
+
+text
+O(n²)
+
+
+# Space
+
+We create another `n × n` matrix:
+
+text
+O(n²)
+
+
+Therefore:
+
+text
+Time  = O(n²)
+Space = O(n²)
+
+
+---
+
+# Key Formula to Remember
+
+For **90° clockwise rotation**:
+
+python
+newarr[n - 1 - j][i] = mat[i][j]
+
+
+Think:
+
+text
+old:
+(i, j)
+
+        ↓
+
+new:
+(n - 1 - j, i)
+
+
+---
+
+# Another Way to Think About It
+
+A 90° clockwise rotation can also be understood as:
+
+text
+1. Transpose the matrix
+2. Reverse every row
+
+
+Example:
+
+text
+Original:
+
+1 2 3
+4 5 6
+7 8 9
+
+
+Transpose:
+
+text
+1 4 7
+2 5 8
+3 6 9
+
+
+Reverse every row:
+
+text
+7 4 1
+8 5 2
+9 6 3
+
+
+Both approaches produce the same result.
+
+---
+
+# What I Learned
+
+# 1. Coordinate mapping
+
+For matrix rotation, instead of thinking about swapping values randomly, identify:
+
+text
+old position → new position
+
+
+For clockwise rotation:
+
+python
+(i, j) → (n - 1 - j, i)
+
+
+# 2. Python 2D list creation
+
+Avoid:
+
+python
+[[-1] * n] * n
+
+
+Use:
+
+python
+[[-1] * n for _ in range(n)]
+
+
+# 3. Index vs size
+
+If matrix size is:
+
+text
+n = 3
+
+
+last index is:
+
+text
+n - 1 = 2
+
+
+This is why rotation formulas commonly contain:
+
+python
+n - 1
+
+
+# 4. Extra space
+
+My current solution uses `O(n²)` extra space.
+
+A better interview solution can rotate the matrix **in-place** using `O(1)` extra space by:
+
+text
+Transpose
++
+Reverse each row
+
+
+That is the next optimization to learn.
+
+---
+
+## Quick Revision
+
+text
+90° Clockwise Rotation
+
+Old position:
+(i, j)
+
+New position:
+(n - 1 - j, i)
+
+Formula:
+newarr[n - 1 - j][i] = mat[i][j]
+
+Complexity:
+Time  → O(n²)
+Space → O(n²)
+
